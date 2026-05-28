@@ -12,6 +12,7 @@ import {
   useGenerateAlternateEndingsMutation,
   useGenerateFreeAlternateEndingsMutation,
 } from "../../redux/apis/ai.model.api";
+import PlotHoleAnalyzer from "../writing-assistant/PlotHoleAnalyzer";
 export interface IStories {
   uuid: string;
   title: string;
@@ -859,6 +860,11 @@ if (isLoading) {
                   </div>
                 )}
               </div>
+            )}
+            
+            {/* Plot-Hole & Consistency Checker Section */}
+            {selectedStory && (
+              <PlotHoleAnalyzer storyText={selectedStory.content} />
             )}
           </div>
         </div>

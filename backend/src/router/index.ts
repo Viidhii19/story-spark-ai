@@ -12,6 +12,7 @@ import { ReactionRouter } from "../app/modules/reaction/reaction.router";
 import { ContactRoutes } from "../app/modules/contact/contact.route";
 import { ReportRouter } from "../app/modules/report/report.router";
 import { NewsletterRouter } from "../app/modules/newsletter/newsletter.route";
+import { AIEditorRouter } from "../app/modules/ai_editor/ai_editor.router";
 
 
 
@@ -22,6 +23,7 @@ import { BookmarkRouter } from "../app/modules/bookmark/bookmark.router";
 import { AnalyticsRouter } from "../app/modules/analytics/analytics.router";
 
 const router = express.Router();
+
 
 const modules = [
   {
@@ -83,6 +85,10 @@ const modules = [
   {
     path: "/reports",
     router: ReportRouter,
+  },
+  {
+    path: "/stories",
+    router: AIEditorRouter,
   },
 ];
 modules.forEach((route) => router.use(route.path, route.router));
