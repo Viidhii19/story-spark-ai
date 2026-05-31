@@ -21,6 +21,7 @@ import { BugReportRouter } from "../app/modules/bug_report/bug_report.router";
 import { RecommendationRouter } from "../app/modules/recommendation/recommendation.router";
 import { WriterApplicationRoutes } from "../app/modules/writer_application/writer_application.route";
 import { AIEditorRouter } from "../app/modules/ai_editor/ai_editor.router";
+import { StoryInspirationRouter } from "../app/modules/story_inspiration/story_inspiration.router";
 
 const router = express.Router();
 
@@ -90,6 +91,10 @@ const modules = [
     router: storyRoutes,
   },
   {
+    path: "/story-inspiration",
+    router: StoryInspirationRouter,
+  },
+  {
     path: "/contact",
     router: ContactRoutes,
   },
@@ -114,6 +119,7 @@ const modules = [
     router: AIEditorRouter,
   },
 ];
+
 modules.forEach((route) => router.use(route.path, route.router));
 
 export const Routers = router;

@@ -41,59 +41,20 @@ const GENRE_THEMES: Record<string, { gradient: string; accent: string; icon: str
 function getGenreTheme(tag?: string) {
   const key = (tag || "default").toLowerCase().trim();
   return GENRE_THEMES[key] ?? GENRE_THEMES.default;
+import React from "react";
+import { Post } from "../../models/post";
+import { useNavigate } from "react-router-dom";
+
+interface IRelatedStoriesComponentProps {
+  posts: Post[],
+  currentPostId: string;
 }
 
-function getInitials(title?: string): string {
-  if (!title || !title.trim()) return "?";
-  const words = title.trim().split(/\s+/);
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-  return words.slice(0, 2).map((w) => w[0] ?? "").join("").toUpperCase();
-}
-
-interface StoryCoverImageProps {
-  title?: string;
-  tag?: string;
-  size?: "full" | "thumb";
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-const StoryCoverImage: React.FC<StoryCoverImageProps> = ({
-  title = "",
-  tag = "default",
-  size = "full",
-  className = "",
-  style = {},
+const RelatedStoriesComponent: React.FC<IRelatedStoriesComponentProps> = ({
+  posts,currentPostId,
 }) => {
-  const theme = getGenreTheme(tag);
-  const initials = getInitials(title);
-
-  if (size === "thumb") {
-    return (
-      <div
-        className={className}
-        style={{
-          width: "100%",
-          height: "100%",
-          borderRadius: "50%",
-          background: `linear-gradient(${theme.gradient})`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "1.1rem",
-          fontWeight: 700,
-          color: "#fff",
-          letterSpacing: "0.05em",
-          textShadow: "0 1px 4px rgba(0,0,0,0.4)",
-          userSelect: "none",
-          ...style,
-        }}
-      >
-        {initials}
-      </div>
-    );
-  }
-
+  const navigate = useNavigate();
+  const filteredPosts=posts.filter((post)=>post._id!==currentPostId)
   return (
     <div
       className={className}
@@ -688,36 +649,30 @@ const StoriesViewComponent: React.FC<StoriesComponentProps> = ({
                   {loading ? "Publishing..." : "Publish"}
                 </button>
               </div>
+    <div className="grid grid-cols-2 gap-6">
+      {filteredPosts.length > 0 ? (
+        filteredPosts.map((post: Post) => (
+          <div
+            onClick={() => navigate(`/post/${post._id}`)}
+            key={post._id}
+            className="cursor-pointer bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1 transition-all duration-300 overflow-hidden group flex flex-col h-full"
+          >
+            <div className="relative overflow-hidden">
+              <img
+                src={post.imageURL}
+                alt="Related Story"
+                className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-60 pointer-events-none"></div>
             </div>
-
-            {selectedStory.enhancedPrompt && (
-              <div className="mb-6 p-4 bg-indigo-900/30 border border-indigo-700/50 rounded-xl relative z-10">
-                <h4 className="text-sm font-semibold text-indigo-300 mb-2 flex items-center gap-2">
-                  <i className="fas fa-wand-magic-sparkles"></i> AI Enhanced Prompt
-                </h4>
-                <p className="text-slate-300 text-sm italic break-words whitespace-pre-wrap">{selectedStory.enhancedPrompt}</p>
-              </div>
-            )}
-
-            <div id="story-content" className="prose prose-invert max-w-none text-slate-300 leading-relaxed tracking-wide relative z-10">
-              <p className="break-words whitespace-pre-wrap">
-                {sentenceSegments.length > 0 ? (
-                  sentenceSegments.map((segment: StorySentenceSegment) => {
-                    const isActiveSentence = isNarrationActive && narrationWordIndex >= segment.startWordIndex && narrationWordIndex <= segment.endWordIndex;
-                    return (
-                      <span key={segment.id} className={isActiveSentence ? "rounded-md bg-indigo-500/20 px-0.5 py-0.5 text-indigo-100 ring-1 ring-indigo-400/30" : undefined}>
-                        {segment.text}
-                      </span>
-                    );
-                  })
-                ) : selectedStory.content}
+            <div className="p-5 flex flex-col flex-1">
+              <h4 className="font-bold text-lg mb-2 text-slate-100 group-hover:text-blue-400 transition-colors line-clamp-2">
+                {post.title}
+              </h4>
+              <p className="text-sm text-slate-400 line-clamp-3 leading-relaxed">
+                {post?.content.slice(0, 120)}...
               </p>
             </div>
-
-            <div className="relative z-10 mt-6">
-              <AudioPlayer ref={audioPlayerRef} text={selectedStory.content} title={selectedStory.title} onWordIndexChange={setNarrationWordIndex} onPlaybackStateChange={setNarrationState} />
-            </div>
-            <div className="mt-6"><ContinueStoryButton /></div>
           </div>
 
           {/* Topics + Alternate Endings */}
@@ -900,10 +855,12 @@ const StoriesViewComponent: React.FC<StoriesComponentProps> = ({
       )}
       {showWorldMap && selectedStory && (
         <StoryWorldMap story={selectedStory.content} title={selectedStory.title} onClose={() => setShowWorldMap(false)} />
+        ))
+      ) : (
+        <p className="text-center text-slate-500 col-span-2 py-8">No related stories found.</p>
       )}
-      <Toaster position="top-right" reverseOrder={false} />
     </div>
   );
 };
 
-export default StoriesViewComponent;
+export default RelatedStoriesComponent;
